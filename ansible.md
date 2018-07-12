@@ -18,7 +18,6 @@ You can also specify host-level variables, such as as username, password, ip add
 hostname ansible_host=x.y.z.a
 ````
 
-
 ### File formats
 Ansible supports ini-style and yml inventory files.
 
@@ -51,7 +50,7 @@ group2
 ````ansible-playbook -i inventory.file playbook.yml````
 
 
-# Roles
+## Roles
 - Discreet series of steps are best left as part of a **role**.  By default, a playbook will search in ````./roles```` for any specified roles, then will search in the local ansible directory (where ansible-galaxy roles are stored).
 
 ## Using a role
@@ -80,7 +79,7 @@ vars:
   node_download_url: "http://whatever.node.com/downloads/{{ node_file }}"
 ````
 
-## Role directory structure
+### Role directory structure
 A role can contain any or all of the follow 6 directories:
 - **defaults** : default values for variables if none is provided
 - **files** : files used within the role
@@ -92,7 +91,8 @@ A role can contain any or all of the follow 6 directories:
 
 Inside ````defaults````, ````handlers````, ````meta````, ````templates````, and ````vars````, you can include a ````main.yml```` file that will be loaded automatically as part of the role. 
 
-## Ansible Galaxy
+### Ansible Galaxy
+Ansible Galaxy is a collection of roles written by other Ansible users and uploaded for general use.
 - Use ansible-galaxy roles where possible.  Save the time and energy for productive work.
 
 ````
@@ -103,6 +103,45 @@ ansible-galaxy install geerlingguy.apache
 
 ````
 ansible-galaxy install --force geerlingguy.apache
+````
+
+## Tasks
+Tasks are individual steps to take as part of a configuration.
+
+A basic task might look like:
+````
+- name: Name of Task #name of task
+  copy: #module name
+    src: file.type #local file
+    dest: /home/user/file.type #remote destination
+````
+If using a role, it will begin looking in ````./files````.  Otherwise, it will look in PWD.
+
+## Handlers
+Handlers are single-run tasks that are *notified* by other tasks and run at the end of the role or playbook.
+
+*notify* only triggers if there is a change in the task, so a new configuration file will trigger the handler, but a copy that doesn't change the file will not.
+
+A basic handler:
+````
+- name: reload nginx #handler name
+  service:
+    name: nginx
+    state: reloaded
+  become: yes
+````
+
+This handler will ensure that nginx is reloaded.
+
+To call this handler, add notify to a task.
+
+````
+- name: Update nginx
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+  become: yes
+  notify: reload nginx
 ````
 
 
