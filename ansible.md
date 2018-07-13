@@ -83,11 +83,11 @@ vars:
 A role can contain any or all of the follow 6 directories:
 - **defaults** : default values for variables if none is provided
 - **files** : files used within the role
-- **handlers** : handlers used within the role
+- **handlers** : [handlers](#handlers) used within the role
 - **meta** : descriptions about the role (such as dependencies)
 - **tasks** : the actual tasks to perform
-- **templates** : j2 templates used by the role
-- **vars** : variables for the role
+- **templates** : [j2 templates](#j2) used by the role
+- **vars** : [variables](#vars) for the role
 
 Inside ````defaults````, ````handlers````, ````meta````, ````templates````, and ````vars````, you can include a ````main.yml```` file that will be loaded automatically as part of the role. 
 
@@ -115,9 +115,9 @@ A basic task might look like:
     src: file.type #local file
     dest: /home/user/file.type #remote destination
 ````
-If using a role, it will begin looking in ````./files````.  Otherwise, it will look in PWD.
+If using a role, it will begin looking inside the role's directories for relevant files (such as ````files````, ````templates````)
 
-## Handlers
+## <a name="handlers">Handlers</a>
 Handlers are single-run tasks that are *notified* by other tasks and run at the end of the role or playbook.
 
 *notify* only triggers if there is a change in the task, so a new configuration file will trigger the handler, but a copy that doesn't change the file will not.
@@ -144,4 +144,55 @@ To call this handler, add notify to a task.
   notify: reload nginx
 ````
 
+- Handlers are useful if you need to restart a service, for example, after a set of possible changes, but are not useful for instances where you need to restart the service between changes to avoid breakage.
 
+## <a name="vars">Variables</a>
+Variables can be used in tasks or in [jinja2 templates](#j2).
+
+To define a variable:
+````
+vars:
+  var_name: value
+````
+
+If you are defining a variable inside of a file in a role's ````vars```` directory, you can omit ````vars```` and simple begin defining variables after the ````---```` opening of a yml file.
+
+To use a variable inside a task:
+````
+- name: Name of task
+  copy:
+    src: "{{ file }}"
+    dest: "/etc/{{ file }}"
+````
+
+Note that interpolation is straightforward and the use of double-quotes.  While not strictly necessary in all instances, they will not break instances where not required, so you will be better off to get in the habit of using double-quotes.
+
+
+
+## <a name="j2">Templates</a>
+Templates are jinja2 template files that can be used to generate configuraitons on the fly.
+
+To create a template, write the file as normal, but replace any variable elements with ````{{ variable_name }}````.
+
+For example:
+````
+hostname=prodapp1
+````
+
+you can create a template with the following:
+````
+hostname={{ hostname }}
+````
+
+To use a template in a task, use the ````template```` module:
+
+````
+- name: Copy some configuration
+  template:
+    src: file.j2
+    dest: dest/file
+````
+
+This will take the file.j2 template, resolve any templating, and copy it.
+
+As with most modules, the template module will only register a change if the file resulting from a template is actually different from the existing file.
