@@ -81,7 +81,7 @@ vars:
 
 ### Role directory structure
 A role can contain any or all of the follow 6 directories:
-- **defaults** : default values for variables if none is provided
+- **defaults** : [default values](#defaults) for variables if none is provided
 - **files** : files used within the role
 - **handlers** : [handlers](#handlers) used within the role
 - **meta** : descriptions about the role (such as dependencies)
@@ -196,3 +196,8 @@ To use a template in a task, use the ````template```` module:
 This will take the file.j2 template, resolve any templating, and copy it.
 
 As with most modules, the template module will only register a change if the file resulting from a template is actually different from the existing file.
+
+## <a name="defaults">Defaults</a>
+Defaults are variables that, unless overridden by the user, will be used within the role.  These really only are useful for roles.
+
+Function just like standard variables, but can be overridden.
