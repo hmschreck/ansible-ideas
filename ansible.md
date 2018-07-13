@@ -200,4 +200,16 @@ As with most modules, the template module will only register a change if the fil
 ## <a name="defaults">Defaults</a>
 Defaults are variables that, unless overridden by the user, will be used within the role.  These really only are useful for roles.
 
-Function just like standard variables, but can be overridden.
+Function just like standard variables, but can be overridden.  Place into ````main.yml```` inside ````defaults````
+
+## Meta
+Metadata about a role.
+
+### Dependencies
+If a role is dependent on the outcome of another role, the required role is a dependency of the role.  To specify a dependency:
+````
+dependencies:
+  - { role: name }
+````
+
+As with specifying a role elsewhere, you can specify additional variables inside the line for the role.
